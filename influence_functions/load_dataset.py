@@ -2,6 +2,18 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split, KFold, cross_val_score, StratifiedKFold, cross_val_score, GridSearchCV, RepeatedStratifiedKFold
 
+#Made for Processing the acs income easier
+#value: indicates column
+#ranges: indicates dictionary of values
+group_dict = {}
+def assign_group(value):
+  """Assigns a group label to a value based on the ranges dictionary."""
+  if value not in group_dict:
+    for group_name, group_range in ranges.items():
+      if group_range[0] <= value <= group_range[1]:
+        group_dict[value] = group_name
+        break
+  return group_dict.get(value)
 
 def preprocess_german(df, preprocess):
     df['status'] = df['status'].map({'A11': 0, 'A12': 1, 'A13': 2, 'A14': 3}).astype(int)
@@ -33,25 +45,26 @@ def preprocess_german(df, preprocess):
 
 def process_adult(df):
     # replace missing values (?) to nan and then drop the columns
-    df['country'] = df['country'].replace('?',np.nan)
-    df['workclass'] = df['workclass'].replace('?',np.nan)
-    df['occupation'] = df['occupation'].replace('?',np.nan)
+    df['country'] = df['country'].replace(' ?',np.nan)
+    df['workclass'] = df['workclass'].replace(' ?',np.nan)
+    df['occupation'] = df['occupation'].replace(' ?',np.nan)
     # dropping the NaN rows now
-    df.dropna(how='any',inplace=True)
-    df['income'] = df['income'].map({'<=50K': 0, '>50K': 1}).astype(int)
+    df.dropna(how='any', inplace=True)
+    df['income'] = df['income'].map({' <=50K': 0, ' >50K': 1})
     df['age'] = df['age'].apply(lambda x : 1 if x >= 45 else 0) # 1 if old, 0 if young
-    df['workclass'] = df['workclass'].map({'Never-worked': 0, 'Without-pay': 1, 'State-gov': 2, 'Local-gov': 3, 'Federal-gov': 4, 'Self-emp-inc': 5, 'Self-emp-not-inc': 6, 'Private': 7}).astype(int)
-    df['education'] = df['education'].map({'Preschool': 0, '1st-4th': 1, '5th-6th': 2, '7th-8th': 3, '9th': 4, '10th': 5, '11th': 6, '12th': 7, 'HS-grad':8, 'Some-college': 9, 'Bachelors': 10, 'Prof-school': 11, 'Assoc-acdm': 12, 'Assoc-voc': 13, 'Masters': 14, 'Doctorate': 15}).astype(int)
-    df['marital'] = df['marital'].map({'Married-civ-spouse': 2, 'Divorced': 1, 'Never-married': 0, 'Separated': 1, 'Widowed': 1, 'Married-spouse-absent': 2, 'Married-AF-spouse': 2}).astype(int)
-    df['relationship'] = df['relationship'].map({'Wife': 1 , 'Own-child': 0 , 'Husband': 1, 'Not-in-family': 0, 'Other-relative': 0, 'Unmarried': 0}).astype(int)
-    df['race'] = df['race'].map({'White': 1, 'Asian-Pac-Islander': 0, 'Amer-Indian-Eskimo': 0, 'Other': 0, 'Black': 0}).astype(int)
-    df['gender'] = df['gender'].map({'Male': 1, 'Female': 0}).astype(int)
+    df['workclass'] = df['workclass'].map({' Never-worked': 0, ' Without-pay': 1, ' State-gov': 2, ' Local-gov': 3, ' Federal-gov': 4, ' Self-emp-inc': 5, ' Self-emp-not-inc': 6, ' Private': 7})
+    df['education'] = df['education'].map({' Preschool': 0, ' 1st-4th': 1, ' 5th-6th': 2, ' 7th-8th': 3, ' 9th': 4, ' 10th': 5, ' 11th': 6, ' 12th': 7, ' HS-grad':8, ' Some-college': 9, ' Bachelors': 10, ' Prof-school': 11, ' Assoc-acdm': 12, ' Assoc-voc': 13, ' Masters': 14, ' Doctorate': 15}).astype(int)
+    df['marital'] = df['marital'].map({' Married-civ-spouse': 2, ' Divorced': 1, ' Never-married': 0, ' Separated': 1, ' Widowed': 1, ' Married-spouse-absent': 2, ' Married-AF-spouse': 2}).astype(int)
+    df['relationship'] = df['relationship'].map({' Wife': 1 , ' Own-child': 0 , ' Husband': 1, ' Not-in-family': 0, ' Other-relative': 0, ' Unmarried': 0}).astype(int)
+    df['race'] = df['race'].map({' White': 1, ' Asian-Pac-Islander': 0, ' Amer-Indian-Eskimo': 0, ' Other': 0, ' Black': 0}).astype(int)
+    df['gender'] = df['gender'].map({ ' Male': 1, ' Female': 0})
     # process hours
     df.loc[(df['hours'] <= 40), 'hours'] = 0
     df.loc[(df['hours'] > 40), 'hours'] = 1
     df = df.drop(columns=['fnlwgt', 'education.num', 'occupation', 'country', 'capgain', 'caploss'])
     df = df.reset_index(drop=True)
     return df
+
 
 
 def preprocess_compas(df):
@@ -75,6 +88,67 @@ def preprocess_compas(df):
     df.loc[(df['juv_other_count'] == 0), 'juv_other_count'] = 0
     df.loc[(df['juv_other_count'] == 1), 'juv_other_count'] = 1
     df.loc[(df['juv_other_count'] > 1), 'juv_other_count'] = 2
+    return df
+
+def preprocess_acsincome(df):
+    #Alter the Class of Worker column
+    df['COW'] = df['COW'].map({1:'private_business', 2:'non-profit', 3:'local_gov', 4:'state_gov', 5:'federal_gov', 6:'SE_no_business', 7:'SE_business', 8:'no_pay_work', 9:'unemployed'})
+    #Alter the Marital status column
+    df['MAR'] = df['MAR'].map({1:'married', 2:'widowed', 3:'divorced', 4:'seperated', 5:'never_married'})
+    #Alter the sex column
+    df['SEX'] = df['SEX'].map({1:'male', 2:'female'})
+    
+     # Define the ranges dictionary for SCHL
+    ranges = {
+        'GS': (1, 15), 'HSD': (16, 17), 'SC': (18, 20), 
+        'BD': (21, 21), 'ME': (22, 22), 'PD': (23, 23), 'DE': (24, 24)
+    }
+    # Function to map the integer values to strings based on the ranges
+    def map_values(value):
+        for key, (start, end) in ranges.items():
+            if start <= value <= end:
+                return key
+        return None 
+    # Apply the function to the 'SCHL' column
+    df['SCHL'] = df['SCHL'].apply(map_values)
+
+    #Alter the Occupation column
+    ranges = {'management': (10,440),'business': (500,960),'computer': (1005,1240),'engineering': (1305,1560),'life': (1600,1980),
+              'education_arts': (2001,2970),'healthcare': (3000,3550),'service': (3601,4655),'sales': (4700,5940),
+              'environmental_construction': (6005,7640),'production_transportation': (7700,9760),'military': (9800,9920)
+    }
+    df['OCCP'] = df['OCCP'].apply(map_values)
+    #Alter the Relationship codes
+    ranges = {'family': (0,7),'inlaws/other': (8,10),'non-family': (11,17)}
+    df['RELP'] = df['RELP'].apply(map_values)
+    #Alter the race column
+    ranges = {'white': (1,1),'poc': (2,9)}
+    df['RAC1P'] = df['RAC1P'].apply(map_values)
+    #Alter the income column
+    ranges = {0:(0,50000),1:(50001,2000000)}
+    df['PINCP'] = df['PINCP'].apply(map_values)
+    #Alter the age column
+    df['AGEP'] = df['AGEP'].apply(lambda x : 'old' if x >= 45 else 'young')
+
+    #Get dummy columns
+    #df = pd.concat([df, pd.get_dummies(df['housing'], prefix='housing')],axis=1)
+    #Dummies for COW column
+    df = pd.concat([df, pd.get_dummies(df['COW'],prefix='COW')],axis=1)
+    #Dummies for MAR column
+    df = pd.concat([df,pd.get_dummies(df['MAR'],prefix='MAR')],axis=1)
+    #Dummies for SEX column
+    df = pd.concat([df,pd.get_dummies(df['SEX'],prefix='SEX')],axis=1)
+    #Dummies for SCHL column
+    df = pd.concat([df,pd.get_dummies(df['SCHL'],prefix='SCHL')],axis=1)
+    #Dummies for OCCP Column
+    df = pd.concat([df,pd.get_dummies(df['OCCP'],prefix='OCCP')],axis=1)
+    #Dummies for RELP column
+    df = pd.concat([df,pd.get_dummies(df['RELP'],prefix='RELP')],axis=1)
+    #Dummies for RAC1P column
+    df = pd.concat([df,pd.get_dummies(df['RAC1P'],prefix='RAC1P')],axis=1)
+    #Dummies for AGEP
+    df = pd.concat([df,pd.get_dummies(df['AGEP'],prefix='AGEP')],axis=1)
+
     return df
 
 
@@ -119,6 +193,25 @@ def load_adult(sample=False):
 
     X_test = df_test.drop(columns='income')
     y_test = df_test['income']
+    return X_train, X_test, y_train, y_test
+
+def load_acsincome(sample_size):
+    cols = ['AGEP', 'COW', 'SCHL', 'MAR', 'OCCP', 'POBP', 'RELP', 'WKHP', 'SEX', 'RAC1P', 'ST', 'PINCP']
+    df_income = pd.read_csv('acs_income.csv' ,index_col=None, sep=',').sample(sample_size)
+    #print('1')
+    df_process = preprocess_acsincome(df_income)
+    df_process=df_process.drop(columns=['COW','MAR','SEX','SCHL','OCCP','RELP','RAC1P','AGEP'])
+    y=df_process['PINCP']
+    df_process=df_process.drop(columns='PINCP')
+    X_train, X_test, y_train, y_test = train_test_split(df_process, y, test_size=0.2, random_state=1)
+
+
+
+    X_train = X_train.reset_index(drop=True)
+    X_test = X_test.reset_index(drop=True)
+    y_train = y_train.reset_index(drop=True)
+    y_test = y_test.reset_index(drop=True)
+    
     return X_train, X_test, y_train, y_test
 
 
@@ -181,6 +274,9 @@ def load(dataset, preprocess=True, row_num=10000, attr_num=30, sample=False):
         return load_sqf()
     elif dataset == 'random':
         return generate_random_dataset(row_num, attr_num)
+    elif dataset == 'acsincome':
+        row_num=1000
+        return load_acsincome(row_num)
     else:
         raise NotImplementedError
         

@@ -46,6 +46,11 @@ def computeFairness(y_pred, X_test, y_test, metric, dataset):
         numProtected = len(protected_idx)
         privileged_idx = X_test[X_test['AA']==1].index
         numPrivileged = len(privileged_idx)
+    elif dataset == 'acsincome':
+        protected_idx = X_test[X_test['SEX_male']==0].index
+        num_protected = len(protected_idx)
+        privileged_idx = X_test[X_test['SEX_male']==1].index
+        num_privileged = len(privileged_idx)
 
     p_protected = 0
     for i in range(len(protected_idx)):
@@ -138,6 +143,9 @@ def del_spd_del_theta(model, X_test_orig, X_test, dataset):
     elif dataset == 'random':
         numPrivileged = X_test_orig['AA'].sum()
         numProtected = len(X_test_orig) - numPrivileged
+    elif dataset == 'acsincome':
+        numPrivileged = X_test_orig['SEX_male'].sum()
+        numProtected = len(X_test_orig) - numPrivileged
 
     for i in range(len(X_test)):
         del_f_i = del_f_del_theta_i(model, X_test[i])
@@ -172,6 +180,12 @@ def del_spd_del_theta(model, X_test_orig, X_test, dataset):
                 del_f_privileged += del_f_i_arr
             elif X_test_orig.iloc[i]['AA'] == 0:
                 del_f_protected += del_f_i_arr
+        elif dataset == 'acsincome':
+            if X_test_orig.iloc[i]['SEX_male'] == 1: #privileged
+                del_f_privileged += del_f_i_arr
+            elif X_test_orig.iloc[i]['SEX_male'] == 0:#protected
+                del_f_privileged += del_f_i_arr
+
 
     del_f_privileged /= numPrivileged
     del_f_protected /= numProtected
