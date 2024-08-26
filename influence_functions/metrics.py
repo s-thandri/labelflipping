@@ -228,6 +228,11 @@ def del_tpr_parity_del_theta(model, X_test_orig, X_test, y_test, dataset):
         numProtected = len(protected_idx)
         privileged_idx = X_test_orig[X_test_orig['AA']==1].index
         numPrivileged = len(privileged_idx)
+    elif dataset =='acsincome':
+        protected_idx = X_test_orig[X_test_orig['SEX_male']==0].index
+        numProtected = len(protected_idx)
+        privileged_idx = X_test_orig[X_test_orig['SEX_male']==1].index
+        numPrivileged = len(privileged_idx)
 
     actual_positive_privileged = 0
     for i in range(len(privileged_idx)):
@@ -286,6 +291,11 @@ def del_predictive_parity_del_theta(model, X_test_orig, X_test, y_test, dataset)
         protected_idx = X_test_orig[X_test_orig['AA']==0].index
         numProtected = len(protected_idx)
         privileged_idx = X_test_orig[X_test_orig['AA']==1].index
+        numPrivileged = len(privileged_idx)
+    elif dataset == 'acsincome':
+        protected_idx = X_test_orig[X_test_orig['SEX_male']==0].index
+        numProtected = len(protected_idx)
+        privileged_idx = X_test_orig[X_test_orig['SEX_male']==1].index
         numPrivileged = len(privileged_idx)
 
     u_dash_protected = np.zeros((num_params,))

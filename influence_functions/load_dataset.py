@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split, KFold, cross_val_score, St
 #Made for Processing the acs income easier
 #value: indicates column
 #ranges: indicates dictionary of values
-group_dict = {}
+'''group_dict = {}
 def assign_group(value):
   """Assigns a group label to a value based on the ranges dictionary."""
   if value not in group_dict:
@@ -13,7 +13,7 @@ def assign_group(value):
       if group_range[0] <= value <= group_range[1]:
         group_dict[value] = group_name
         break
-  return group_dict.get(value)
+  return group_dict.get(value)'''
 
 def preprocess_german(df, preprocess):
     df['status'] = df['status'].map({'A11': 0, 'A12': 1, 'A13': 2, 'A14': 3}).astype(int)
@@ -197,15 +197,17 @@ def load_adult(sample=False):
 
 def load_acsincome(sample_size):
     cols = ['AGEP', 'COW', 'SCHL', 'MAR', 'OCCP', 'POBP', 'RELP', 'WKHP', 'SEX', 'RAC1P', 'ST', 'PINCP']
-    df_income = pd.read_csv('acs_income.csv' ,index_col=None, sep=',').sample(sample_size)
+    df_income = pd.read_csv('acs_income.csv' ,index_col=None, sep=',')
+    #Grabs datapoints that are from Florida
+    df_florida = df_income[df_income['ST']==12.0]
     #print('1')
-    df_process = preprocess_acsincome(df_income)
+    df_process = preprocess_acsincome(df_florida)
+    df_process = df_process.sample(n=sample_size)
     df_process=df_process.drop(columns=['COW','MAR','SEX','SCHL','OCCP','RELP','RAC1P','AGEP'])
     y=df_process['PINCP']
     df_process=df_process.drop(columns='PINCP')
+    #df_final = df_process.sample(n=sample_size)
     X_train, X_test, y_train, y_test = train_test_split(df_process, y, test_size=0.2, random_state=1)
-
-
 
     X_train = X_train.reset_index(drop=True)
     X_test = X_test.reset_index(drop=True)
