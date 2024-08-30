@@ -92,17 +92,14 @@ def preprocess_compas(df):
 
 def preprocess_acsincome(df):
     #Alter the Class of Worker column
-    df['COW'] = df['COW'].map({1:'private_business', 2:'non-profit', 3:'local_gov', 4:'state_gov', 5:'federal_gov', 6:'SE_no_business', 7:'SE_business', 8:'no_pay_work', 9:'unemployed'})
+    #df['COW'] = df['COW'].map({1:'private_business', 2:'non-profit', 3:'local_gov', 4:'state_gov', 5:'federal_gov', 6:'SE_no_business', 7:'SE_business', 8:'no_pay_work', 9:'unemployed'})
     #Alter the Marital status column
     df['MAR'] = df['MAR'].map({1:'married', 2:'widowed', 3:'divorced', 4:'seperated', 5:'never_married'})
     #Alter the sex column
     df['SEX'] = df['SEX'].map({1:'male', 2:'female'})
     
      # Define the ranges dictionary for SCHL
-    ranges = {
-        'GS': (1, 15), 'HSD': (16, 17), 'SC': (18, 20), 
-        'BD': (21, 21), 'ME': (22, 22), 'PD': (23, 23), 'DE': (24, 24)
-    }
+    ranges = {'GS': (1, 17), 'BD': (18, 21), 'HE': (22, 24)}
     # Function to map the integer values to strings based on the ranges
     def map_values(value):
         for key, (start, end) in ranges.items():
@@ -113,13 +110,16 @@ def preprocess_acsincome(df):
     df['SCHL'] = df['SCHL'].apply(map_values)
 
     #Alter the Occupation column
-    ranges = {'management': (10,440),'business': (500,960),'computer': (1005,1240),'engineering': (1305,1560),'life': (1600,1980),
-              'education_arts': (2001,2970),'healthcare': (3000,3550),'service': (3601,4655),'sales': (4700,5940),
-              'environmental_construction': (6005,7640),'production_transportation': (7700,9760),'military': (9800,9920)
-    }
+    ranges = {'business': (10,960),'stem': (1005,1560),'life': (1600,3550),'sales': (3601,5940),
+              'infrastructure': (6005,9760),'military': (9800,9920)
+              }
+    
     df['OCCP'] = df['OCCP'].apply(map_values)
+    #Alter the Class of Worker column
+    ranges = {'private_business':(1,1), 'non-profit':(2,2), 'gov':(3,5), 'self_employed':(6,7), 'no_income':(8,9)}
+    df['COW'] = df['COW'].apply(map_values)
     #Alter the Relationship codes
-    ranges = {'family': (0,7),'inlaws/other': (8,10),'non-family': (11,17)}
+    ranges = {'family': (0,10),'non-family': (11,17)}
     df['RELP'] = df['RELP'].apply(map_values)
     #Alter the race column
     ranges = {'white': (1,1),'poc': (2,9)}
