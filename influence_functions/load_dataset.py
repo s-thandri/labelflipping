@@ -277,7 +277,7 @@ def load(dataset, preprocess=True, row_num=10000, attr_num=30, sample=False):
     elif dataset == 'random':
         return generate_random_dataset(row_num, attr_num)
     elif dataset == 'acsincome':
-        row_num=1000
+        row_num=20000
         return load_acsincome(row_num)
     else:
         raise NotImplementedError
