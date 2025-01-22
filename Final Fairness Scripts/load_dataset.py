@@ -199,9 +199,9 @@ def load_acsincome(sample_size):
     cols = ['AGEP', 'COW', 'SCHL', 'MAR', 'OCCP', 'POBP', 'RELP', 'WKHP', 'SEX', 'RAC1P', 'ST', 'PINCP']
     df_income = pd.read_csv('acs_income.csv' ,index_col=None, sep=',')
     #Grabs datapoints that are from Florida
-    #df_florida = df_income[df_income['ST']==12.0]
+    df_cali = df_income[df_income['ST']==6.0]
     #print('1')
-    df_process = preprocess_acsincome(df_income)
+    df_process = preprocess_acsincome(df_cali)
     df_process = df_process.sample(n=sample_size)
     df_process=df_process.drop(columns=['COW','MAR','SEX','SCHL','OCCP','RELP','RAC1P','AGEP'])
     y=df_process['PINCP']
