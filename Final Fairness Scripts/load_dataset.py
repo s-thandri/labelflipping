@@ -199,7 +199,7 @@ def load_acsincome(sample_size):
     cols = ['AGEP', 'COW', 'SCHL', 'MAR', 'OCCP', 'POBP', 'RELP', 'WKHP', 'SEX', 'RAC1P', 'ST', 'PINCP']
     df_income = pd.read_csv('acs_income.csv' ,index_col=None, sep=',')
     #Grabs datapoints that are from Florida
-    df_cali = df_income[df_income['ST']==6.0]
+    df_cali = df_income[df_income['ST']==19.0]
     #print('1')
     df_process = preprocess_acsincome(df_cali)
     df_process = df_process.sample(n=sample_size)
@@ -277,7 +277,7 @@ def load(dataset, preprocess=True, row_num=10000, attr_num=30, sample=False):
     elif dataset == 'random':
         return generate_random_dataset(row_num, attr_num)
     elif dataset == 'acsincome':
-        row_num=20000
+        row_num=17745
         return load_acsincome(row_num)
     else:
         raise NotImplementedError
